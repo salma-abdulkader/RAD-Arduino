@@ -1,0 +1,71 @@
+#include <Wire.h>
+#include <TEA5767N.h>
+
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,  16, 2);
+
+TEA5767N radio = TEA5767N();  
+float frequency = 0;                            
+int freq_up = 7;                                   
+                               
+int count = 0;    
+void setup()
+{
+  //delay(1000);
+  Wire.begin();
+  frequency = 91.1;                       
+  radio.selectFrequency(frequency);
+  Serial.begin(9600);
+  Serial.print(frequency);
+  Serial.println("MHZ");
+  delay(1000);
+  lcd.begin(16,2);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("FM: ");
+  lcd.setCursor(0, 1);
+  lcd.print(frequency);
+}
+void loop()
+{
+  
+  if(digitalRead(freq_up))                      
+  {
+    count=0;
+    while (digitalRead(freq_up))
+    {
+      count++;
+      if(count > 0 && count <= 6)          
+      {
+        frequency += 0.1;
+        frequencyUpdate();
+        delay(200);
+      }
+      else if (count > 6 && count <= 2)   
+      {
+        frequency += 0.1;
+        frequencyUpdate();
+        delay(80);
+      }
+      else                                
+      {
+        frequency += 0.1;
+        frequencyUpdate();
+        delay(5);
+      }
+    }}
+  
+}
+void frequencyUpdate()                    
+{
+  frequency = constrain(frequency, 88.0, 108.0);
+   Serial.print("ESTACION DE FM:");
+   Serial.print(frequency);
+    Serial.println("MHZ");
+  lcd.setCursor(0,0);
+  lcd.print("ESTACION DE FM:");
+  lcd.setCursor(0,1);
+  lcd.print(frequency);
+  radio.selectFrequency(frequency);
+}
